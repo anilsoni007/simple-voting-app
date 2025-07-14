@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Voting App</title>
+    <style>
+        body { 
+            font-family: Arial; 
+            margin: 0; 
+            padding: 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            background-attachment: fixed;
+        }
+        .container { 
+            max-width: 600px; 
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            backdrop-filter: blur(10px);
+        }
+        .vote-form { margin: 20px 0; }
+        .results { margin: 20px 0; }
+        .candidate { 
+            margin: 10px 0; 
+            padding: 15px; 
+            background: linear-gradient(45deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+        button { 
+            padding: 12px 24px; 
+            margin: 5px;
+            border: none;
+            border-radius: 25px;
+            background: linear-gradient(45deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        button:hover { transform: scale(1.05); }
+        input[type="text"] { 
+            padding: 12px; 
+            width: 200px;
+            border: 2px solid #ddd;
+            border-radius: 25px;
+            outline: none;
+        }
+        h1, h2 { color: #333; text-shadow: 2px 2px 4px rgba(0,0,0,0.1); }
+        
+        .glitter {
+            position: fixed;
+            pointer-events: none;
+            z-index: 1000;
+            animation: glitter 1s ease-out forwards;
+        }
+        
+        @keyframes glitter {
+            0% { opacity: 1; transform: scale(0) rotate(0deg); }
+            50% { opacity: 1; transform: scale(1) rotate(180deg); }
+            100% { opacity: 0; transform: scale(0.5) rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Voting Application</h1>
+        
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for message in messages %}
+                    <div style="color: green; margin: 10px 0;">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        {% if voting_open %}
+            <div class="vote-form">
+                <h2>Cast Your Vote</h2>
+                <form method="POST" action="/vote">
+                    <input type="text" name="candidate" placeholder="Enter candidate name" required>
+                    <button type="submit">Vote</button>
+                </form>
+            </div>
+            <a href="/close_voting"><button>Close Voting</button></a>
+        {% else %}
+            <h2 style="color: red;">Voting is Closed</h2>
+            <a href="/enable_voting"><button>Enable Voting</button></a>
+        {% endif %}
+
+        {% if not voting_open %}
+            <div class="results">
+                <h2>Final Results</h2>
+                {% if votes %}
+                    {% for candidate, count in votes %}
+                        <div class="candidate">
+                            <strong>{{ candidate }}</strong>: {{ count }} vote(s)
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p>No votes were cast.</p>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+    <script>
+        function createGlitter() {
+            for (let i = 0; i < 20; i++) {
+                const glitter = document.createElement('div');
+                glitter.className = 'glitter';
+                glitter.style.left = Math.random() * window.innerWidth + 'px';
+                glitter.style.top = Math.random() * window.innerHeight + 'px';
+                glitter.style.width = Math.random() * 10 + 5 + 'px';
+                glitter.style.height = glitter.style.width;
+                glitter.style.background = ['#FFD700', '#FF69B4', '#00CED1', '#FF6347'][Math.floor(Math.random() * 4)];
+                glitter.style.borderRadius = '50%';
+                document.body.appendChild(glitter);
+                
+                setTimeout(() => glitter.remove(), 1000);
+            }
+        }
+        
+        // Check if vote was just cast
+        const messages = document.querySelectorAll('div[style*="color: green"]');
+        messages.forEach(msg => {
+            if (msg.textContent.includes('Vote cast')) {
+                createGlitter();
+            }
+        });
+    </script>
+</body>
+</html>
