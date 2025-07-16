@@ -62,6 +62,38 @@
             50% { opacity: 1; transform: scale(1) rotate(180deg); }
             100% { opacity: 0; transform: scale(0.5) rotate(360deg); }
         }
+        
+        .history-panel {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 300px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .history-session {
+            margin: 10px 0;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 5px;
+            border-left: 4px solid #007bff;
+        }
+        
+        .session-time {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+        
+        .session-vote {
+            font-size: 14px;
+            margin: 2px 0;
+        }
     </style>
 </head>
 <body>
@@ -105,6 +137,28 @@
             </div>
         {% endif %}
     </div>
+    
+    <!-- Voting History Panel -->
+    {% if past_results %}
+    <div class="history-panel">
+        <h3 style="margin-top: 0; color: #333;">Past Voting Sessions</h3>
+        {% for result in past_results %}
+            <div class="history-session">
+                <div class="session-time">
+                    {{ result.session.start_time.strftime('%Y-%m-%d %H:%M') }} - 
+                    {{ result.session.end_time.strftime('%H:%M') if result.session.end_time else 'Ongoing' }}
+                </div>
+                {% if result.votes %}
+                    {% for candidate, count in result.votes %}
+                        <div class="session-vote">{{ candidate }}: {{ count }}</div>
+                    {% endfor %}
+                {% else %}
+                    <div class="session-vote">No votes cast</div>
+                {% endif %}
+            </div>
+        {% endfor %}
+    </div>
+    {% endif %}
     <script>
         function createGlitter() {
             for (let i = 0; i < 20; i++) {
