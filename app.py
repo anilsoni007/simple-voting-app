@@ -1,17 +1,32 @@
 from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
+from datetime import datetime
 import os
+import logging
+import sys
 
 app = Flask(__name__)
 app.secret_key = 'voting-app-secret'
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(sys.stdout)
+    ]
+)
+logger = logging.getLogger(__name__)
 
 # Database configuration - switches between local SQLite and RDS
 if os.getenv('RDS_ENDPOINT'):
     # RDS configuration
     app.config['SQLALCHEMY_DATABASE_URI'] = f"mysql+pymysql://{os.getenv('RDS_USERNAME')}:{os.getenv('RDS_PASSWORD')}@{os.getenv('RDS_ENDPOINT')}/{os.getenv('RDS_DB_NAME')}"
+    logger.info(f"Using RDS database: {os.getenv('RDS_ENDPOINT')}/{os.getenv('RDS_DB_NAME')}")
 else:
     # Local SQLite configuration
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///voting.db'
+    logger.info("Using local SQLite database: voting.db")
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
@@ -20,57 +35,129 @@ db = SQLAlchemy(app)
 class Vote(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     candidate_name = db.Column(db.String(100), nullable=False)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    session_id = db.Column(db.Integer, db.ForeignKey('voting_session.id'))
 
 class VotingStatus(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     is_open = db.Column(db.Boolean, default=True)
 
+class VotingSession(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    start_time = db.Column(db.DateTime, default=datetime.utcnow)
+    end_time = db.Column(db.DateTime)
+    is_active = db.Column(db.Boolean, default=True)
+    votes = db.relationship('Vote', backref='session', lazy=True)
+
 # Routes
 @app.route('/')
 def index():
+    logger.info("Index page accessed")
     status = VotingStatus.query.first()
     if not status:
         status = VotingStatus(is_open=True)
         db.session.add(status)
         db.session.commit()
+        logger.info("Created initial voting status")
     
-    votes = db.session.query(Vote.candidate_name, db.func.count(Vote.id)).group_by(Vote.candidate_name).all()
-    return render_template('index.html', votes=votes, voting_open=status.is_open)
+    # Get current session
+    current_session = VotingSession.query.filter_by(is_active=True).first()
+    if not current_session and status.is_open:
+        current_session = VotingSession()
+        db.session.add(current_session)
+        db.session.commit()
+        logger.info(f"Created new voting session: {current_session.id}")
+    
+    # Current votes (active session only)
+    current_votes = []
+    if current_session:
+        current_votes = db.session.query(Vote.candidate_name, db.func.count(Vote.id)).filter_by(session_id=current_session.id).group_by(Vote.candidate_name).all()
+        logger.info(f"Retrieved {len(current_votes)} candidate results for session {current_session.id}")
+    
+    # Past voting sessions
+    past_sessions = VotingSession.query.filter_by(is_active=False).order_by(VotingSession.end_time.desc()).limit(5).all()
+    past_results = []
+    for session in past_sessions:
+        session_votes = db.session.query(Vote.candidate_name, db.func.count(Vote.id)).filter_by(session_id=session.id).group_by(Vote.candidate_name).all()
+        past_results.append({
+            'session': session,
+            'votes': session_votes
+        })
+    logger.info(f"Retrieved {len(past_results)} past voting sessions")
+    
+    return render_template('index.html', votes=current_votes, voting_open=status.is_open, past_results=past_results)
 
 @app.route('/vote', methods=['POST'])
 def vote():
+    client_ip = request.environ.get('HTTP_X_FORWARDED_FOR', request.remote_addr)
+    logger.info(f"Vote attempt from IP: {client_ip}")
+    
     status = VotingStatus.query.first()
     if not status or not status.is_open:
+        logger.warning(f"Vote rejected - voting is closed (IP: {client_ip})")
         flash('Voting is closed!')
         return redirect(url_for('index'))
     
+    # Get or create current session
+    current_session = VotingSession.query.filter_by(is_active=True).first()
+    if not current_session:
+        current_session = VotingSession()
+        db.session.add(current_session)
+        db.session.commit()
+        logger.info(f"Created new session {current_session.id} for vote")
+    
     candidate = request.form.get('candidate')
     if candidate:
-        vote = Vote(candidate_name=candidate)
+        vote = Vote(candidate_name=candidate, session_id=current_session.id)
         db.session.add(vote)
         db.session.commit()
+        logger.info(f"Vote cast for '{candidate}' in session {current_session.id} from IP: {client_ip}")
         flash(f'Vote cast for {candidate}!')
+    else:
+        logger.warning(f"Empty vote attempt from IP: {client_ip}")
+    
     return redirect(url_for('index'))
 
 @app.route('/close_voting')
 def close_voting():
+    client_ip = request.environ.get('HTTP_X_FORWARDED_FOR', request.remote_addr)
+    logger.info(f"Voting close requested from IP: {client_ip}")
+    
     status = VotingStatus.query.first()
     if status:
         status.is_open = False
+        # Close current session
+        current_session = VotingSession.query.filter_by(is_active=True).first()
+        if current_session:
+            current_session.is_active = False
+            current_session.end_time = datetime.utcnow()
+            total_votes = Vote.query.filter_by(session_id=current_session.id).count()
+            logger.info(f"Closed voting session {current_session.id} with {total_votes} total votes")
         db.session.commit()
+        logger.info("Voting status set to closed")
+    
     flash('Voting has been closed!')
     return redirect(url_for('index'))
 
 @app.route('/enable_voting')
 def enable_voting():
+    client_ip = request.environ.get('HTTP_X_FORWARDED_FOR', request.remote_addr)
+    logger.info(f"Voting enable requested from IP: {client_ip}")
+    
     status = VotingStatus.query.first()
     if status:
         status.is_open = True
         db.session.commit()
+        logger.info("Voting status set to open")
+    
     flash('Voting has been enabled!')
     return redirect(url_for('index'))
 
 if __name__ == '__main__':
+    logger.info("Starting Voting Application")
     with app.app_context():
         db.create_all()
-    app.run(debug=True)
+        logger.info("Database tables created/verified")
+    
+    logger.info("Application ready - listening on 0.0.0.0:5000")
+    app.run(host='0.0.0.0', port=5000, debug=False)
