@@ -1,33 +1,71 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Voting App</title>
+    <title>Batman vs Superman Voting</title>
     <style>
         body { 
             font-family: Arial; 
             margin: 0; 
             padding: 40px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #1a2a6c 0%, #b21f1f 50%, #fdbb2d 100%);
             min-height: 100vh;
             background-attachment: fixed;
         }
         .container { 
-            max-width: 600px; 
+            max-width: 800px; 
+            margin: 0 auto;
             background: rgba(255, 255, 255, 0.95);
             padding: 30px;
             border-radius: 15px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.3);
             backdrop-filter: blur(10px);
         }
-        .vote-form { margin: 20px 0; }
-        .results { margin: 20px 0; }
-        .candidate { 
-            margin: 10px 0; 
-            padding: 15px; 
-            background: linear-gradient(45deg, #f093fb 0%, #f5576c 100%);
+        .vote-form { 
+            margin: 20px 0; 
+            text-align: center;
+        }
+        .results { 
+            margin: 20px 0; 
+            text-align: center;
+        }
+        .candidates-container {
+            display: flex;
+            justify-content: space-around;
+            margin: 30px 0;
+        }
+        .candidate-card {
+            width: 45%;
+            text-align: center;
+            padding: 20px;
+            border-radius: 10px;
+            transition: transform 0.3s;
+            cursor: pointer;
+        }
+        .candidate-card:hover {
+            transform: translateY(-10px);
+        }
+        .batman {
+            background: linear-gradient(45deg, #283c86, #45a247);
             color: white;
-            border-radius: 8px;
+        }
+        .superman {
+            background: linear-gradient(45deg, #1e3c72, #2a5298);
+            color: white;
+        }
+        .candidate-image {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 15px;
+            border: 4px solid white;
+            background-color: #fff;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        .vote-count {
+            font-size: 24px;
             font-weight: bold;
+            margin: 10px 0;
         }
         button { 
             padding: 12px 24px; 
@@ -47,8 +85,13 @@
             border: 2px solid #ddd;
             border-radius: 25px;
             outline: none;
+            margin-bottom: 15px;
         }
-        h1, h2 { color: #333; text-shadow: 2px 2px 4px rgba(0,0,0,0.1); }
+        h1, h2 { 
+            color: #333; 
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+            text-align: center;
+        }
         
         .glitter {
             position: fixed;
@@ -94,16 +137,79 @@
             font-size: 14px;
             margin: 2px 0;
         }
+        
+        .winner-announcement {
+            text-align: center;
+            margin: 30px 0;
+            padding: 20px;
+            background: linear-gradient(45deg, #FFD700, #FFA500);
+            border-radius: 10px;
+            animation: pulse 2s infinite;
+        }
+        
+        .winner-title {
+            font-size: 32px;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        
+        .thunder {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('https://media.giphy.com/media/3oKIPtjElfqwMOTbH2/giphy.gif') center center no-repeat;
+            background-size: cover;
+            z-index: 999;
+            pointer-events: none;
+            opacity: 0;
+            display: none;
+        }
+        
+        @keyframes thunder-flash {
+            0% { opacity: 0; }
+            10% { opacity: 0.8; }
+            20% { opacity: 0.2; }
+            30% { opacity: 0.9; }
+            40% { opacity: 0.3; }
+            50% { opacity: 1; }
+            60% { opacity: 0.2; }
+            70% { opacity: 0.7; }
+            80% { opacity: 0.1; }
+            100% { opacity: 0; }
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .error-message {
+            background-color: #ffdddd;
+            color: #ff0000;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
+    <div class="thunder" id="thunder"></div>
+    
     <div class="container">
-        <h1>Voting Application</h1>
+        <h1>Batman vs Superman Voting</h1>
         
-        {% with messages = get_flashed_messages() %}
+        {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
-                {% for message in messages %}
-                    <div style="color: green; margin: 10px 0;">{{ message }}</div>
+                {% for category, message in messages %}
+                    {% if category == 'error' %}
+                        <div class="error-message">{{ message }}</div>
+                    {% else %}
+                        <div style="color: green; margin: 10px 0; text-align: center;">{{ message }}</div>
+                    {% endif %}
                 {% endfor %}
             {% endif %}
         {% endwith %}
@@ -111,29 +217,73 @@
         {% if voting_open %}
             <div class="vote-form">
                 <h2>Cast Your Vote</h2>
-                <form method="POST" action="/vote">
-                    <input type="text" name="candidate" placeholder="Enter candidate name" required>
-                    <button type="submit">Vote</button>
+                <form method="POST" action="/vote" id="voteForm">
+                    <input type="text" name="voter_name" placeholder="Enter your name" required>
+                    <input type="hidden" name="candidate" id="candidateInput">
+                    
+                    <div class="candidates-container">
+                        <div class="candidate-card batman" onclick="selectCandidate('Batman')">
+                            <img src="https://www.superherodb.com/pictures2/portraits/10/100/639.jpg" alt="Batman" class="candidate-image">
+                            <h3>Batman</h3>
+                            <p>Vote for the Dark Knight</p>
+                        </div>
+                        
+                        <div class="candidate-card superman" onclick="selectCandidate('Superman')">
+                            <img src="https://www.superherodb.com/pictures2/portraits/10/100/791.jpg" alt="Superman" class="candidate-image">
+                            <h3>Superman</h3>
+                            <p>Vote for the Man of Steel</p>
+                        </div>
+                    </div>
                 </form>
             </div>
-            <a href="/close_voting"><button>Close Voting</button></a>
+            <div style="text-align: center;">
+                <a href="/close_voting"><button>Close Voting</button></a>
+            </div>
         {% else %}
             <h2 style="color: red;">Voting is Closed</h2>
-            <a href="/enable_voting"><button>Enable Voting</button></a>
-        {% endif %}
-
-        {% if not voting_open %}
+            
+            {% if winner %}
+                <div class="winner-announcement">
+                    <div class="winner-title">Winner: {{ winner }}!</div>
+                    {% if winner != 'Tie' %}
+                        <img src="{% if winner == 'Batman' %}https://www.superherodb.com/pictures2/portraits/10/100/639.jpg{% else %}https://www.superherodb.com/pictures2/portraits/10/100/791.jpg{% endif %}" 
+                             alt="{{ winner }}" width="200">
+                    {% else %}
+                        <p>It's a tie between Batman and Superman!</p>
+                    {% endif %}
+                </div>
+            {% endif %}
+            
             <div class="results">
                 <h2>Final Results</h2>
-                {% if votes %}
+                <div class="candidates-container">
+                    {% set batman_votes = 0 %}
+                    {% set superman_votes = 0 %}
+                    
                     {% for candidate, count in votes %}
-                        <div class="candidate">
-                            <strong>{{ candidate }}</strong>: {{ count }} vote(s)
-                        </div>
+                        {% if candidate == 'Batman' %}
+                            {% set batman_votes = count %}
+                        {% elif candidate == 'Superman' %}
+                            {% set superman_votes = count %}
+                        {% endif %}
                     {% endfor %}
-                {% else %}
-                    <p>No votes were cast.</p>
-                {% endif %}
+                    
+                    <div class="candidate-card batman">
+                        <img src="https://www.superherodb.com/pictures2/portraits/10/100/639.jpg" alt="Batman" class="candidate-image">
+                        <h3>Batman</h3>
+                        <div class="vote-count">{{ batman_votes }} vote(s)</div>
+                    </div>
+                    
+                    <div class="candidate-card superman">
+                        <img src="https://www.superherodb.com/pictures2/portraits/10/100/791.jpg" alt="Superman" class="candidate-image">
+                        <h3>Superman</h3>
+                        <div class="vote-count">{{ superman_votes }} vote(s)</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="text-align: center; margin-top: 20px;">
+                <a href="/enable_voting"><button>Start New Election</button></a>
             </div>
         {% endif %}
     </div>
@@ -159,7 +309,13 @@
         {% endfor %}
     </div>
     {% endif %}
+    
     <script>
+        function selectCandidate(candidate) {
+            document.getElementById('candidateInput').value = candidate;
+            document.getElementById('voteForm').submit();
+        }
+        
         function createGlitter() {
             for (let i = 0; i < 20; i++) {
                 const glitter = document.createElement('div');
@@ -176,13 +332,33 @@
             }
         }
         
+        function showThunder() {
+            const thunder = document.getElementById('thunder');
+            thunder.style.display = 'block';
+            thunder.style.animation = 'thunder-flash 2s';
+            
+            setTimeout(() => {
+                thunder.style.display = 'none';
+                thunder.style.animation = 'none';
+            }, 2000);
+        }
+        
         // Check if vote was just cast
         const messages = document.querySelectorAll('div[style*="color: green"]');
         messages.forEach(msg => {
-            if (msg.textContent.includes('Vote cast')) {
+            if (msg.textContent.includes('Thank you')) {
                 createGlitter();
             }
         });
+        
+        // Show thunder effect if there's a winner
+        {% if winner and winner != 'Tie' %}
+            window.addEventListener('DOMContentLoaded', function() {
+                setTimeout(showThunder, 500);
+                setTimeout(showThunder, 3000);
+                setTimeout(showThunder, 5500);
+            });
+        {% endif %}
     </script>
 </body>
 </html>
