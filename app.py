@@ -34,7 +34,8 @@ db = SQLAlchemy(app)
 # Models
 class Vote(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    candidate_name = db.Column(db.String(100), nullable=False)
+    candidate_name = db.Column(db.String(100), nullable=False)  # 'Batman' or 'Superman'
+    voter_name = db.Column(db.String(100), nullable=False)      # Name of the voter
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
     session_id = db.Column(db.Integer, db.ForeignKey('voting_session.id'))
 
@@ -70,9 +71,26 @@ def index():
     
     # Current votes (active session only)
     current_votes = []
+    winner = None
     if current_session:
         current_votes = db.session.query(Vote.candidate_name, db.func.count(Vote.id)).filter_by(session_id=current_session.id).group_by(Vote.candidate_name).all()
         logger.info(f"Retrieved {len(current_votes)} candidate results for session {current_session.id}")
+        
+        # Determine winner if voting is closed
+        if not status.is_open and current_votes:
+            # Convert to dict for easier comparison
+            vote_counts = {candidate: count for candidate, count in current_votes}
+            
+            # Check if Batman or Superman has more votes
+            batman_votes = vote_counts.get('Batman', 0)
+            superman_votes = vote_counts.get('Superman', 0)
+            
+            if batman_votes > superman_votes:
+                winner = 'Batman'
+            elif superman_votes > batman_votes:
+                winner = 'Superman'
+            else:
+                winner = 'Tie'  # It's a tie
     
     # Past voting sessions
     past_sessions = VotingSession.query.filter_by(is_active=False).order_by(VotingSession.end_time.desc()).limit(5).all()
@@ -85,7 +103,8 @@ def index():
         })
     logger.info(f"Retrieved {len(past_results)} past voting sessions")
     
-    return render_template('index.html', votes=current_votes, voting_open=status.is_open, past_results=past_results)
+    return render_template('index.html', votes=current_votes, voting_open=status.is_open, 
+                           past_results=past_results, winner=winner)
 
 @app.route('/vote', methods=['POST'])
 def vote():
@@ -107,14 +126,29 @@ def vote():
         logger.info(f"Created new session {current_session.id} for vote")
     
     candidate = request.form.get('candidate')
-    if candidate:
-        vote = Vote(candidate_name=candidate, session_id=current_session.id)
-        db.session.add(vote)
-        db.session.commit()
-        logger.info(f"Vote cast for '{candidate}' in session {current_session.id} from IP: {client_ip}")
-        flash(f'Vote cast for {candidate}!')
-    else:
-        logger.warning(f"Empty vote attempt from IP: {client_ip}")
+    voter_name = request.form.get('voter_name')
+    
+    if not voter_name or not candidate:
+        flash('Both voter name and candidate selection are required!', 'error')
+        return redirect(url_for('index'))
+    
+    # Check if voter has already voted in this session
+    existing_vote = Vote.query.filter_by(
+        voter_name=voter_name,
+        session_id=current_session.id
+    ).first()
+    
+    if existing_vote:
+        logger.warning(f"Duplicate vote attempt by {voter_name} from IP: {client_ip}")
+        flash(f'Sorry {voter_name}, you have already cast your vote. You can vote in the next election.', 'error')
+        return redirect(url_for('index'))
+    
+    # Valid new vote
+    vote = Vote(candidate_name=candidate, voter_name=voter_name, session_id=current_session.id)
+    db.session.add(vote)
+    db.session.commit()
+    logger.info(f"Vote cast for '{candidate}' by {voter_name} in session {current_session.id} from IP: {client_ip}")
+    flash(f'Thank you {voter_name}! Your vote for {candidate} has been recorded!')
     
     return redirect(url_for('index'))
 
