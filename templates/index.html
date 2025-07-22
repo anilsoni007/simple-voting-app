@@ -138,52 +138,242 @@
             margin: 2px 0;
         }
         
+        .winner-page {
+            text-align: center;
+            padding: 20px;
+        }
+        
         .winner-announcement {
             text-align: center;
             margin: 30px 0;
-            padding: 20px;
+            padding: 30px;
             background: linear-gradient(45deg, #FFD700, #FFA500);
             border-radius: 10px;
             animation: pulse 2s infinite;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
         }
         
         .winner-title {
-            font-size: 32px;
+            font-size: 42px;
             margin-bottom: 10px;
             color: #333;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
         }
         
-        .thunder {
+        .total-votes-banner {
+            background: linear-gradient(45deg, #2193b0, #6dd5ed);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px auto;
+            width: 80%;
+            max-width: 400px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        
+        .total-votes-count {
+            font-size: 48px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .total-votes-label {
+            font-size: 18px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .winner-image-container {
+            margin: 30px 0;
+            min-height: 300px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .winner-image {
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 8px solid white;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            margin: 20px 0;
+        }
+        
+        .tie-container {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin: 20px 0;
+        }
+        
+        .tie-image {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 6px solid white;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        
+        .vote-counts {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin: 30px 0;
+        }
+        
+        .vote-count-box {
+            padding: 15px 30px;
+            border-radius: 10px;
+            color: white;
+            font-size: 18px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        
+        .batman-count {
+            background: linear-gradient(45deg, #283c86, #45a247);
+        }
+        
+        .superman-count {
+            background: linear-gradient(45deg, #1e3c72, #2a5298);
+        }
+        
+        .new-election-button {
+            margin: 40px 0 20px;
+        }
+        
+        .green-button {
+            padding: 15px 30px;
+            font-size: 18px;
+            background: linear-gradient(45deg, #56ab2f, #a8e063);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        
+        .green-button:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.3);
+        }
+        
+        .celebration-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 10;
+            overflow: hidden;
+        }
+        
+        .bubble {
+            position: absolute;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.4));
+            animation: float 4s ease-in-out infinite;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.5), inset 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+        
+        .thunder-overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: url('https://media.giphy.com/media/3oKIPtjElfqwMOTbH2/giphy.gif') center center no-repeat;
-            background-size: cover;
-            z-index: 999;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 998;
             pointer-events: none;
             opacity: 0;
             display: none;
+            transition: opacity 0.5s;
+        }
+        
+
+        
+        .rainforest {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('https://media.giphy.com/media/3o7aCRZYNerX4ovPwI/giphy.gif') center center no-repeat;
+            background-size: cover;
+            z-index: 997;
+            pointer-events: none;
+            opacity: 0;
+            display: none;
+            transition: opacity 1s;
+        }
+        
+        .rain {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('https://media.giphy.com/media/l0MYAfxbg3aD0jxMk/giphy.gif') center center no-repeat;
+            background-size: cover;
+            z-index: 996;
+            pointer-events: none;
+            opacity: 0;
+            display: none;
+            transition: opacity 0.5s;
         }
         
         @keyframes thunder-flash {
             0% { opacity: 0; }
-            10% { opacity: 0.8; }
+            10% { opacity: 0.9; }
             20% { opacity: 0.2; }
-            30% { opacity: 0.9; }
+            30% { opacity: 1; }
             40% { opacity: 0.3; }
-            50% { opacity: 1; }
+            50% { opacity: 0.8; }
             60% { opacity: 0.2; }
             70% { opacity: 0.7; }
             80% { opacity: 0.1; }
             100% { opacity: 0; }
         }
         
+        /* Glowing particles effect */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 995;
+        }
+        
+        .particle {
+            position: absolute;
+            background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0) 70%);
+            border-radius: 50%;
+            animation: float-particle 4s ease-out infinite;
+        }
+        
+        @keyframes float-particle {
+            0% { transform: translateY(0) scale(1); opacity: 0.8; }
+            100% { transform: translateY(-100px) scale(0.3); opacity: 0; }
+        }
+        
         @keyframes pulse {
             0% { transform: scale(1); }
             50% { transform: scale(1.05); }
             100% { transform: scale(1); }
+        }
+        
+        @keyframes float {
+            0% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-100px) rotate(180deg); }
+            100% { transform: translateY(-200px) rotate(360deg); opacity: 0; }
         }
         
         .error-message {
@@ -197,7 +387,7 @@
     </style>
 </head>
 <body>
-    <div class="thunder" id="thunder"></div>
+    <canvas id="lightningCanvas" style="position: fixed; top: 0; left: 0; z-index: 999; pointer-events: none; display: none;"></canvas>
     
     <div class="container">
         <h1>Batman vs Superman Voting</h1>
@@ -240,50 +430,67 @@
                 <a href="/close_voting"><button>Close Voting</button></a>
             </div>
         {% else %}
-            <h2 style="color: red;">Voting is Closed</h2>
-            
-            {% if winner %}
-                <div class="winner-announcement">
-                    <div class="winner-title">Winner: {{ winner }}!</div>
-                    {% if winner != 'Tie' %}
-                        <img src="{% if winner == 'Batman' %}https://www.superherodb.com/pictures2/portraits/10/100/639.jpg{% else %}https://www.superherodb.com/pictures2/portraits/10/100/791.jpg{% endif %}" 
-                             alt="{{ winner }}" width="200">
-                    {% else %}
-                        <p>It's a tie between Batman and Superman!</p>
-                    {% endif %}
+            <div class="winner-page">
+                <h2 style="color: red;">Voting is Closed</h2>
+                
+                <!-- Total Votes Banner -->
+                <div class="total-votes-banner">
+                    <div class="total-votes-count">{{ total_votes }}</div>
+                    <div class="total-votes-label">Total Votes Cast</div>
                 </div>
-            {% endif %}
-            
-            <div class="results">
-                <h2>Final Results</h2>
-                <div class="candidates-container">
-                    {% set batman_votes = 0 %}
-                    {% set superman_votes = 0 %}
-                    
-                    {% for candidate, count in votes %}
-                        {% if candidate == 'Batman' %}
-                            {% set batman_votes = count %}
-                        {% elif candidate == 'Superman' %}
-                            {% set superman_votes = count %}
-                        {% endif %}
-                    {% endfor %}
-                    
-                    <div class="candidate-card batman">
-                        <img src="https://www.superherodb.com/pictures2/portraits/10/100/639.jpg" alt="Batman" class="candidate-image">
-                        <h3>Batman</h3>
-                        <div class="vote-count">{{ batman_votes }} vote(s)</div>
+                
+                {% if winner %}
+                    <!-- Winner Announcement -->
+                    <div class="winner-announcement">
+                        <div class="winner-title">Winner: {{ winner }}!</div>
+                        
+                        <!-- Winner Image Section -->
+                        <div class="winner-image-container">
+                            {% if winner != 'Tie' %}
+                                <img src="{% if winner == 'Batman' %}https://www.superherodb.com/pictures2/portraits/10/100/639.jpg{% else %}https://www.superherodb.com/pictures2/portraits/10/100/791.jpg{% endif %}" 
+                                     alt="{{ winner }}" class="winner-image">
+                            {% else %}
+                                <div class="tie-container">
+                                    <img src="https://www.superherodb.com/pictures2/portraits/10/100/639.jpg" alt="Batman" class="tie-image">
+                                    <img src="https://www.superherodb.com/pictures2/portraits/10/100/791.jpg" alt="Superman" class="tie-image">
+                                </div>
+                                <p>It's a tie between Batman and Superman!</p>
+                            {% endif %}
+                        </div>
                     </div>
                     
-                    <div class="candidate-card superman">
-                        <img src="https://www.superherodb.com/pictures2/portraits/10/100/791.jpg" alt="Superman" class="candidate-image">
-                        <h3>Superman</h3>
-                        <div class="vote-count">{{ superman_votes }} vote(s)</div>
+                    <!-- Celebration Effects Container -->
+                    <div class="celebration-container" id="celebration-container"></div>
+                    
+                    <!-- Vote Count Details -->
+                    <div class="vote-counts">
+                        {% set batman_votes = 0 %}
+                        {% set superman_votes = 0 %}
+                        
+                        {% for candidate, count in votes %}
+                            {% if candidate == 'Batman' %}
+                                {% set batman_votes = count %}
+                            {% elif candidate == 'Superman' %}
+                                {% set superman_votes = count %}
+                            {% endif %}
+                        {% endfor %}
+                        
+                        <div class="vote-count-box batman-count">
+                            <strong>Batman:</strong> {{ batman_votes }} vote(s)
+                        </div>
+                        
+                        <div class="vote-count-box superman-count">
+                            <strong>Superman:</strong> {{ superman_votes }} vote(s)
+                        </div>
                     </div>
+                {% else %}
+                    <p>No votes were cast in this election.</p>
+                {% endif %}
+                
+                <!-- New Election Button -->
+                <div class="new-election-button">
+                    <a href="/enable_voting"><button class="green-button">Start New Election</button></a>
                 </div>
-            </div>
-            
-            <div style="text-align: center; margin-top: 20px;">
-                <a href="/enable_voting"><button>Start New Election</button></a>
             </div>
         {% endif %}
     </div>
@@ -332,15 +539,147 @@
             }
         }
         
-        function showThunder() {
-            const thunder = document.getElementById('thunder');
-            thunder.style.display = 'block';
-            thunder.style.animation = 'thunder-flash 2s';
+        function showThunderbolt() {
+            const canvas = document.getElementById("lightningCanvas");
+            const ctx = canvas.getContext("2d");
             
+            // Show canvas
+            canvas.style.display = 'block';
+            
+            // Set canvas size
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            
+            function random(min, max) {
+                return Math.random() * (max - min) + min;
+            }
+            
+            function createLightning(startX, startY, segments) {
+                let x = startX;
+                let y = startY;
+                
+                ctx.beginPath();
+                ctx.moveTo(x, y);
+                
+                for (let i = 0; i < segments; i++) {
+                    x += random(-20, 20);
+                    y += random(10, 30);
+                    ctx.lineTo(x, y);
+                }
+                
+                ctx.strokeStyle = "rgba(255,255,255,0.9)";
+                ctx.lineWidth = 2 + Math.random() * 2;
+                ctx.shadowBlur = 15;
+                ctx.shadowColor = "#ffffff";
+                ctx.stroke();
+            }
+            
+            let flashCount = 0;
+            const maxFlashes = 3;
+            
+            function lightningStrike() {
+                if (flashCount >= maxFlashes) {
+                    // Hide canvas after all flashes
+                    canvas.style.display = 'none';
+                    return;
+                }
+                
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                // flash background
+                document.body.style.backgroundColor = "rgba(255,255,255,0.1)";
+                setTimeout(() => {
+                    document.body.style.backgroundColor = "black";
+                }, 100);
+                
+                const strikes = Math.floor(random(1, 4));
+                for (let i = 0; i < strikes; i++) {
+                    const x = random(0, canvas.width);
+                    const y = 0;
+                    createLightning(x, y, Math.floor(random(10, 20)));
+                }
+                
+                flashCount++;
+                setTimeout(lightningStrike, random(1500, 5000));
+            }
+            
+            lightningStrike();
+        }
+        
+        // Force image loading
+        function preloadImages() {
+            const batmanImg = new Image();
+            batmanImg.src = 'https://www.superherodb.com/pictures2/portraits/10/100/639.jpg';
+            
+            const supermanImg = new Image();
+            supermanImg.src = 'https://www.superherodb.com/pictures2/portraits/10/100/791.jpg';
+        }
+        
+        function createBubble() {
+            const container = document.getElementById('celebration-container');
+            if (!container) return;
+            
+            const bubble = document.createElement('div');
+            bubble.className = 'bubble';
+            
+            // Random size between 20px and 60px
+            const size = Math.random() * 40 + 20;
+            bubble.style.width = `${size}px`;
+            bubble.style.height = `${size}px`;
+            
+            // Random position at the bottom of the container
+            const posX = Math.random() * 100;
+            bubble.style.left = `${posX}%`;
+            bubble.style.bottom = '0';
+            
+            // Random color
+            const colors = ['rgba(255, 215, 0, 0.6)', 'rgba(255, 105, 180, 0.6)', 'rgba(0, 206, 209, 0.6)', 'rgba(255, 99, 71, 0.6)'];
+            bubble.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+            
+            container.appendChild(bubble);
+            
+            // Remove bubble after animation completes
             setTimeout(() => {
-                thunder.style.display = 'none';
-                thunder.style.animation = 'none';
-            }, 2000);
+                bubble.remove();
+            }, 4000);
+        }
+        
+        function createGlowingParticles() {
+            const container = document.getElementById('particles');
+            if (!container) return;
+            
+            // Create 50 particles
+            for (let i = 0; i < 50; i++) {
+                setTimeout(() => {
+                    const particle = document.createElement('div');
+                    particle.className = 'particle';
+                    
+                    // Random size between 3px and 8px
+                    const size = Math.random() * 5 + 3;
+                    particle.style.width = `${size}px`;
+                    particle.style.height = `${size}px`;
+                    
+                    // Random position
+                    particle.style.left = `${Math.random() * 100}%`;
+                    particle.style.top = `${Math.random() * 100}%`;
+                    
+                    // Random glow color
+                    const colors = [
+                        'rgba(255, 255, 255, 0.8)',
+                        'rgba(173, 216, 230, 0.8)',
+                        'rgba(135, 206, 250, 0.8)',
+                        'rgba(176, 224, 230, 0.8)'
+                    ];
+                    particle.style.boxShadow = `0 0 ${size * 2}px ${colors[Math.floor(Math.random() * colors.length)]}`;
+                    
+                    container.appendChild(particle);
+                    
+                    // Remove particle after animation
+                    setTimeout(() => {
+                        particle.remove();
+                    }, 4000);
+                }, i * 80); // Stagger particle creation
+            }
         }
         
         // Check if vote was just cast
@@ -351,12 +690,19 @@
             }
         });
         
-        // Show thunder effect if there's a winner
-        {% if winner and winner != 'Tie' %}
+        // Preload images when page loads
+        preloadImages();
+        
+        // Show thunderbolt when voting is closed
+        {% if not voting_open %}
             window.addEventListener('DOMContentLoaded', function() {
-                setTimeout(showThunder, 500);
-                setTimeout(showThunder, 3000);
-                setTimeout(showThunder, 5500);
+                // Show thunderbolt
+                setTimeout(showThunderbolt, 500);
+                
+                // Create celebration bubbles
+                setTimeout(() => {
+                    setInterval(createBubble, 300);
+                }, 3500); // Start bubbles after thunderbolt
             });
         {% endif %}
     </script>

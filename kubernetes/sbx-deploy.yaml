@@ -1,0 +1,93 @@
+
+###################################################################################################################################
+                              ####  For Sandbox Env ####
+###################################################################################################################################
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: voting-app-pv
+  labels:
+    type: local
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/mnt/data"
+    type: DirectoryOrCreate
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: voting-app-pvc
+spec:
+  storageClassName: manual
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: voting-app
+  labels:
+    app: voting-app
+    tier: frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: voting-app
+      tier: frontend
+  template:
+    metadata:
+      labels:
+        app: voting-app
+        tier: frontend
+    spec:
+      securityContext:
+        fsGroup: 1000
+      containers:
+        - name: voting-app
+          image: asoni007/voting-app:latest
+          ports:
+            - containerPort: 5000
+          env:
+            - name: RDS_ENDPOINT
+              value: voting-db.c52mwuegw7qp.us-east-1.rds.amazonaws.com
+            - name: RDS_USERNAME
+              value: admin
+            - name: RDS_PASSWORD
+              value: admin123
+            - name: RDS_DB_NAME
+              value: voting_db
+          volumeMounts:
+            - name: voting-storage
+              mountPath: /data
+          securityContext:
+            runAsUser: 1000
+      volumes:
+        - name: voting-storage
+          persistentVolumeClaim:
+            claimName: voting-app-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: voting-app-svc
+  labels:
+    app: voting-app
+    tier: frontend
+spec:
+  type: NodePort
+  ports:
+    - port: 5000
+      targetPort: 5000
+      nodePort: 30000
+  selector:
+    app: voting-app
+    tier: frontend

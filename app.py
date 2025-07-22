@@ -72,9 +72,11 @@ def index():
     # Current votes (active session only)
     current_votes = []
     winner = None
+    total_votes = 0
     if current_session:
         current_votes = db.session.query(Vote.candidate_name, db.func.count(Vote.id)).filter_by(session_id=current_session.id).group_by(Vote.candidate_name).all()
-        logger.info(f"Retrieved {len(current_votes)} candidate results for session {current_session.id}")
+        total_votes = Vote.query.filter_by(session_id=current_session.id).count()
+        logger.info(f"Retrieved {len(current_votes)} candidate results for session {current_session.id} with {total_votes} total votes")
         
         # Determine winner if voting is closed
         if not status.is_open and current_votes:
@@ -104,7 +106,7 @@ def index():
     logger.info(f"Retrieved {len(past_results)} past voting sessions")
     
     return render_template('index.html', votes=current_votes, voting_open=status.is_open, 
-                           past_results=past_results, winner=winner)
+                           past_results=past_results, winner=winner, total_votes=total_votes)
 
 @app.route('/vote', methods=['POST'])
 def vote():
@@ -167,10 +169,28 @@ def close_voting():
             current_session.end_time = datetime.utcnow()
             total_votes = Vote.query.filter_by(session_id=current_session.id).count()
             logger.info(f"Closed voting session {current_session.id} with {total_votes} total votes")
+            
+            # Determine winner
+            votes = db.session.query(Vote.candidate_name, db.func.count(Vote.id)).filter_by(session_id=current_session.id).group_by(Vote.candidate_name).all()
+            vote_counts = {candidate: count for candidate, count in votes}
+            batman_votes = vote_counts.get('Batman', 0)
+            superman_votes = vote_counts.get('Superman', 0)
+            
+            if batman_votes > superman_votes:
+                winner = 'Batman'
+            elif superman_votes > batman_votes:
+                winner = 'Superman'
+            else:
+                winner = 'Tie'
+                
+            # Add winner info to flash message
+            flash(f'Voting has been closed! Total votes: {total_votes}. Winner: {winner}')
+        else:
+            flash('Voting has been closed!')
+            
         db.session.commit()
         logger.info("Voting status set to closed")
     
-    flash('Voting has been closed!')
     return redirect(url_for('index'))
 
 @app.route('/enable_voting')
