@@ -71,19 +71,24 @@ docker run -p 5000:5000 \
 - View past voting sessions
 - Secure containerized deployment
 - Works with both SQLite and MySQL RDS
+- Health monitoring with separate liveness and readiness probes
 
-## Database Migration
+## Health Endpoints
 
-If you encounter database schema issues, the application includes a migration script that will run automatically when the container starts. This script will add any missing columns to the database tables.
+### `/health/live` - Liveness Probe
+- **Purpose**: Checks if the application process is alive
+- **Response**: Always returns 200 if process is running
+- **Kubernetes Action**: Restarts container if fails
+- **Use Case**: Detect crashed or deadlocked processes
 
-## Rebuilding and Redeploying
+### `/health/ready` - Readiness Probe
+- **Purpose**: Checks if application is ready to serve traffic
+- **Monitors**:
+  - Database connectivity (SQLite/RDS)
+  - Critical files existence (app.py, templates/index.html)
+- **Response**: 200 if ready, 503 if not ready
+- **Kubernetes Action**: Removes pod from service endpoints if fails
+- **Use Case**: Prevent traffic routing during startup or when dependencies fail
 
-To rebuild and redeploy the application after making changes:
 
-```
-# On Linux/Mac
-./rebuild_deploy.sh
 
-# On Windows
-rebuild_deploy.bat
-```

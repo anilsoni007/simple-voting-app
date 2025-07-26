@@ -58,7 +58,7 @@ spec:
             - containerPort: 5000
           livenessProbe:
             httpGet:
-              path: /health
+              path: /health/live
               port: 5000
             initialDelaySeconds: 30
             periodSeconds: 10
@@ -66,7 +66,7 @@ spec:
             failureThreshold: 3
           readinessProbe:
             httpGet:
-              path: /health
+              path: /health/ready
               port: 5000
             initialDelaySeconds: 5
             periodSeconds: 5
@@ -75,7 +75,7 @@ spec:
             failureThreshold: 3
           env:
             - name: RDS_ENDPOINT
-              value: voting-db.c52mwuegw7qp.us-east-1.rds.amazonaws.com
+              value: voting-db.c9eeigmc69uj.us-east-1.rds.amazonaws.com
             - name: RDS_USERNAME
               value: admin
             - name: RDS_PASSWORD
