@@ -27,4 +27,4 @@ USER appuser
 EXPOSE 5000
 
 # Run migration script before starting the app
-CMD ["sh", "-c", "python db_migration.py && python app.py"]
+CMD ["sh", "-c", "python app.py"]
