@@ -71,3 +71,19 @@ docker run -p 5000:5000 \
 - View past voting sessions
 - Secure containerized deployment
 - Works with both SQLite and MySQL RDS
+
+## Database Migration
+
+If you encounter database schema issues, the application includes a migration script that will run automatically when the container starts. This script will add any missing columns to the database tables.
+
+## Rebuilding and Redeploying
+
+To rebuild and redeploy the application after making changes:
+
+```
+# On Linux/Mac
+./rebuild_deploy.sh
+
+# On Windows
+rebuild_deploy.bat
+```
