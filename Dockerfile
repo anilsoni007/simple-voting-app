@@ -15,7 +15,7 @@ RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir cryptography
 
 # Copy application files
-COPY app.py db_migration.py ./
+COPY app.py ./
 COPY templates/ templates/
 
 # Create instance directory and set permissions
