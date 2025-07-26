@@ -207,6 +207,18 @@ def enable_voting():
     flash('Voting has been enabled!')
     return redirect(url_for('index'))
 
+@app.route('/health')
+def health():
+    try:
+        # Check database connection
+        from sqlalchemy import text
+        db.session.execute(text('SELECT 1'))
+        logger.info("Health check passed")
+        return {'status': 'healthy'}, 200
+    except Exception as e:
+        logger.error(f"Health check failed: {e}")
+        return {'status': 'unhealthy', 'error': str(e)}, 500
+
 if __name__ == '__main__':
     logger.info("Starting Voting Application")
     with app.app_context():

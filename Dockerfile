@@ -15,7 +15,7 @@ RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir cryptography
 
 # Copy application files
-COPY app.py config.py ./
+COPY app.py db_migration.py ./
 COPY templates/ templates/
 
 # Create instance directory and set permissions
@@ -26,4 +26,5 @@ USER appuser
 
 EXPOSE 5000
 
-CMD ["python","app.py"]
+# Run migration script before starting the app
+CMD ["sh", "-c", "python db_migration.py && python app.py"]
