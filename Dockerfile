@@ -17,6 +17,7 @@ RUN pip install --no-cache-dir --upgrade pip && \
 # Copy application files
 COPY app.py ./
 COPY templates/ templates/
+COPY static/ static/
 
 # Create instance directory and set permissions
 RUN mkdir -p instance && chown -R appuser:appuser /app
