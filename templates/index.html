@@ -413,13 +413,13 @@
                     
                     <div class="candidates-container">
                         <div class="candidate-card batman" onclick="selectCandidate('Batman')">
-                            <img src="https://www.superherodb.com/pictures2/portraits/10/100/639.jpg" alt="Batman" class="candidate-image">
+                            <img src="{{ url_for('static', filename='images/batman.jpg') }}" alt="Batman" class="candidate-image">
                             <h3>Batman</h3>
                             <p>Vote for the Dark Knight</p>
                         </div>
                         
                         <div class="candidate-card superman" onclick="selectCandidate('Superman')">
-                            <img src="https://www.superherodb.com/pictures2/portraits/10/100/791.jpg" alt="Superman" class="candidate-image">
+                            <img src="{{ url_for('static', filename='images/superman.jpg') }}" alt="Superman" class="candidate-image">
                             <h3>Superman</h3>
                             <p>Vote for the Man of Steel</p>
                         </div>
@@ -447,12 +447,12 @@
                         <!-- Winner Image Section -->
                         <div class="winner-image-container">
                             {% if winner != 'Tie' %}
-                                <img src="{% if winner == 'Batman' %}https://www.superherodb.com/pictures2/portraits/10/100/639.jpg{% else %}https://www.superherodb.com/pictures2/portraits/10/100/791.jpg{% endif %}" 
+                                <img src="{% if winner == 'Batman' %}{{ url_for('static', filename='images/batman.jpg') }}{% else %}{{ url_for('static', filename='images/superman.jpg') }}{% endif %}" 
                                      alt="{{ winner }}" class="winner-image">
                             {% else %}
                                 <div class="tie-container">
-                                    <img src="https://www.superherodb.com/pictures2/portraits/10/100/639.jpg" alt="Batman" class="tie-image">
-                                    <img src="https://www.superherodb.com/pictures2/portraits/10/100/791.jpg" alt="Superman" class="tie-image">
+                                    <img src="{{ url_for('static', filename='images/batman.jpg') }}" alt="Batman" class="tie-image">
+                                    <img src="{{ url_for('static', filename='images/superman.jpg') }}" alt="Superman" class="tie-image">
                                 </div>
                                 <p>It's a tie between Batman and Superman!</p>
                             {% endif %}
@@ -609,10 +609,10 @@
         // Force image loading
         function preloadImages() {
             const batmanImg = new Image();
-            batmanImg.src = 'https://www.superherodb.com/pictures2/portraits/10/100/639.jpg';
+            batmanImg.src = '{{ url_for("static", filename="images/batman.jpg") }}';
             
             const supermanImg = new Image();
-            supermanImg.src = 'https://www.superherodb.com/pictures2/portraits/10/100/791.jpg';
+            supermanImg.src = '{{ url_for("static", filename="images/superman.jpg") }}';
         }
         
         function createBubble() {
