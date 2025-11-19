@@ -80,7 +80,7 @@ module "ECS" {
   ecs_cluster_name = "voting-app-cluster"
   task_def_name    = "voting-app-task-def"
   ecs_svc_name     = "voting-app-svc"
-  ECS_LB_TG_Arn    = module.ELB.ELB_arn
+  ECS_LB_TG_Arn    = module.ELB.LB_TG_Arn
   container_name   = "voting-app"
   container_port   = 5000
   ECS_SG           = module.ECS_SG.SG_ID

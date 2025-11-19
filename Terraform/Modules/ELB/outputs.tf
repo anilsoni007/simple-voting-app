@@ -9,3 +9,7 @@ output "ELB_URl" {
 output "ELB_SG" {
   value = var.ELB_SG
 }
+
+output "LB_TG_Arn" {
+  value = aws_lb_target_group.LB_TG.arn
+}
