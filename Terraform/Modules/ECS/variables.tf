@@ -39,3 +39,8 @@ variable "task_memory" {
   type    = number
   default = 2048
 }
+
+variable "image_repo" {
+  type    = string
+  default = "asoni007/voting-app:latest"
+}

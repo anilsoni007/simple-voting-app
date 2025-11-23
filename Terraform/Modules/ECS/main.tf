@@ -49,7 +49,7 @@ resource "aws_ecs_task_definition" "task_definition" {
   container_definitions = jsonencode([
     {
       name      = "voting-app"
-      image     = "asoni007/voting-app:latest"
+      image     = var.image_repo
       essential = true
       portMappings = [
         {

@@ -80,6 +80,7 @@ module "ECS" {
   ecs_cluster_name = "voting-app-cluster"
   task_def_name    = "voting-app-task-def"
   ecs_svc_name     = "voting-app-svc"
+  image_repo       = "asoni007/voting-app:latest"
   ECS_LB_TG_Arn    = module.ELB.LB_TG_Arn
   container_name   = "voting-app"
   container_port   = 5000
