@@ -13,3 +13,7 @@ output "private_subnets_id" {
 output "ELB-SG-ID" {
   value = module.SG.SG_ID
 }
+
+output "ELB_URL" {
+  value = module.ELB.ELB_URl
+}
