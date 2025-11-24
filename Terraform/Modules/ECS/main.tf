@@ -7,6 +7,12 @@ resource "aws_ecs_cluster" "ecs_Cluster" {
   }
 }
 
+# CloudWatch Log Group
+resource "aws_cloudwatch_log_group" "ecs_log_group" {
+  name              = "/ecs/${var.ecs_cluster_name}"
+  retention_in_days = 7
+}
+
 # ECS Task Execution Role - Used by ECS agent to pull images and write logs
 resource "aws_iam_role" "ecs_task_execution_role" {
   name = "${var.ecs_cluster_name}-task-execution-role"
@@ -29,8 +35,6 @@ resource "aws_iam_role_policy_attachment" "ecs_task_execution_role_policy" {
   role       = aws_iam_role.ecs_task_execution_role.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 }
-
-
 
 # ECS Task Definition
 resource "aws_ecs_task_definition" "task_definition" {
@@ -76,6 +80,14 @@ resource "aws_ecs_task_definition" "task_definition" {
           value = var.rds_db_name
         }
       ]
+      logConfiguration = {
+        logDriver = "awslogs"
+        options = {
+          "awslogs-group"         = aws_cloudwatch_log_group.ecs_log_group.name
+          "awslogs-region"        = "ap-south-1"
+          "awslogs-stream-prefix" = "ecs"
+        }
+      }
     }
   ])
 }
@@ -99,6 +111,5 @@ resource "aws_ecs_service" "ecs_service" {
     container_name   = var.container_name
     container_port   = var.container_port
   }
-
 
 }
