@@ -106,4 +106,5 @@ module "ECS" {
   rds_username     = module.RDS.db_username
   rds_password     = module.RDS.db_password
   rds_db_name      = module.RDS.db_name
+  aws_region       = "ap-south-1"
 }

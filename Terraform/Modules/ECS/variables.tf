@@ -61,3 +61,7 @@ variable "rds_password" {
 variable "rds_db_name" {
   type = string
 }
+
+variable "aws_region" {
+  type = string
+}
