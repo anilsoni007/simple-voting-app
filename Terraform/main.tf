@@ -87,6 +87,8 @@ module "RDS" {
   db_instance_class       = "db.t3.micro"
   rds_secret_manager_name = "voting-app-creds"
   rds_username            = "admin"
+  vpc_id                  = module.vpc.vpc_id
+  ecs_sg_id               = module.ECS_SG.SG_ID
 }
 
 module "ECS" {

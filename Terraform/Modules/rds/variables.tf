@@ -50,3 +50,11 @@ variable "database_name" {
   type    = string
   default = "voting_db"
 }
+
+variable "vpc_id" {
+  type = string
+}
+
+variable "ecs_sg_id" {
+  type = string
+}

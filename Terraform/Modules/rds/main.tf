@@ -12,6 +12,30 @@ resource "aws_db_subnet_group" "db_subnet_group" {
   }
 }
 
+# RDS Security Group
+resource "aws_security_group" "rds_sg" {
+  name   = "rds-sg"
+  vpc_id = var.vpc_id
+
+  ingress {
+    from_port       = 3306
+    to_port         = 3306
+    protocol        = "tcp"
+    security_groups = [var.ecs_sg_id]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "rds-sg"
+  }
+}
+
 data "aws_rds_engine_version" "rds_Engine" {
   engine             = "mysql"
   latest             = true
@@ -50,4 +74,5 @@ resource "aws_db_instance" "db" {
   password                   = random_password.password.result
   storage_encrypted          = false # sandbox rds config
   username                   = var.rds_username
+  vpc_security_group_ids     = [aws_security_group.rds_sg.id]
 }
