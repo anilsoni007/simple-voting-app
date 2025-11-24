@@ -58,6 +58,24 @@ resource "aws_ecs_task_definition" "task_definition" {
           protocol      = "tcp"
         }
       ]
+      environment = [
+        {
+          name  = "RDS_ENDPOINT"
+          value = var.rds_endpoint
+        },
+        {
+          name  = "RDS_USERNAME"
+          value = var.rds_username
+        },
+        {
+          name  = "RDS_PASSWORD"
+          value = var.rds_password
+        },
+        {
+          name  = "RDS_DB_NAME"
+          value = var.rds_db_name
+        }
+      ]
     }
   ])
 }

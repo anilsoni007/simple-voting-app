@@ -44,3 +44,20 @@ variable "image_repo" {
   type    = string
   default = "asoni007/voting-app:latest"
 }
+
+variable "rds_endpoint" {
+  type = string
+}
+
+variable "rds_username" {
+  type = string
+}
+
+variable "rds_password" {
+  type      = string
+  sensitive = true
+}
+
+variable "rds_db_name" {
+  type = string
+}

@@ -75,6 +75,20 @@ module "ECS_SG" {
   }
 }
 
+module "RDS" {
+  source                  = "./Modules/rds"
+  db_pg_name              = "voting-app-rds-parameter-group"
+  db_sgroup_name          = "voting-app-rds-subnet-group"
+  db_subnet_ids           = module.subnets.priv_subnet_id
+  db_name                 = "rds-voting-app"
+  db_storage              = 5
+  rds_engine              = "mysql"
+  database_name           = "voting_db"
+  db_instance_class       = "db.t3.micro"
+  rds_secret_manager_name = "voting-app-creds"
+  rds_username            = "admin"
+}
+
 module "ECS" {
   source           = "./Modules/ECS"
   ecs_cluster_name = "voting-app-cluster"
@@ -86,6 +100,8 @@ module "ECS" {
   container_port   = 5000
   ECS_SG           = module.ECS_SG.SG_ID
   ECS_Svc_Subnets  = module.subnets.priv_subnet_id
-
+  rds_endpoint     = module.RDS.db_endpoint
+  rds_username     = module.RDS.db_username
+  rds_password     = module.RDS.db_password
+  rds_db_name      = module.RDS.db_name
 }
-
